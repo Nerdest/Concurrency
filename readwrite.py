@@ -1,27 +1,41 @@
 #readwrite.py
 
-from random import choice
 from random import randint
 import time
 import threading
 
 
-master = ["this","is","an","amazing","sentence"]
-adjectives =["defeated","defiant","delicious","delightful","depressed","determined","dirty","disgusted","disturbed","dizzy","dry","dull","dusty","eager","early","elated","embarrassed","empty","encouraging","energetic","enthusiastic","envious","evil","excited","exuberant","faint","fair","faithful","fantastic","fast","fat","few","fierce","filthy","fine","flaky","flat","fluffy","foolish","frail","frantic","fresh","friendly","frightened","funny","fuzzy","gentle","giant","gigantic","good"]
-
+master = [0,1]
+count = 0
 def write():
-	while 1:	
-		master[3] = choice(adjectives)
-		print "The all powerful writer declares that the sentence is now " + str(master[3])
+	for x in xrange(1,10):
+		sema.acquire()
+		print "The first value of the array before writing is " + str(master[0])
+		master[0] += 1
+		print "The second value of the array before writing is " + str(master[1])
+		master[1] +=1
+		x+=1
+		sema.release()
 		time.sleep(1)
 
 
 def reader(id):
-	while 1:
-		sen = " ".join(master)
-		print "reader " + str(id) + " thinks " + str(sen)
-		time.sleep(randint(1,3))
+	global count
+	for x in xrange(1,10):
+		if( count<1):
+			sema.acquire()
+		count +=1
+		print "reader " + str(id) + " sees " + str(master[0]) + " as the first value of the array\n"
+		print "reader " + str(id) + " sees " + str(master[1]) + " as the second value of the array\n"
+		
+		x+=1
+		count -=1
+		if(count<1):
+			sema.release()
+		time.sleep(2)
 
+
+sema = threading.Semaphore()
 writer = threading.Thread(target=write)
 reader1 = threading.Thread(target=reader, args=(1,));
 reader2 = threading.Thread(target=reader, args=(2,));
